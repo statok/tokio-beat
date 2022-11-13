@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub struct Job {
     id: Uuid,
     timer: Timer,
-    f: Arc<dyn Fn() -> BoxFuture<'static, ()> + Send + Sync>,
+    f: Arc<dyn Fn(Uuid) -> BoxFuture<'static, ()> + Send + Sync>,
 }
 
 impl Job {
@@ -17,7 +17,7 @@ impl Job {
         self.id
     }
 
-    pub fn f(&self) -> Arc<dyn Fn() -> BoxFuture<'static, ()> + Send + Sync> {
+    pub fn f(&self) -> Arc<dyn Fn(Uuid) -> BoxFuture<'static, ()> + Send + Sync> {
         self.f.clone()
     }
 
@@ -61,7 +61,7 @@ impl CronJobBuilder {
 
     pub fn do_<T>(&mut self, f: T) -> Job
     where
-        T: Fn() -> BoxFuture<'static, ()> + 'static + Send + Sync,
+        T: Fn(Uuid) -> BoxFuture<'static, ()> + 'static + Send + Sync,
     {
         use cron::Schedule;
         use std::str::FromStr;
@@ -97,7 +97,7 @@ impl CycleJobBuilder {
 
     pub fn do_<T>(&mut self, f: T) -> Job
     where
-        T: Fn() -> BoxFuture<'static, ()> + 'static + Send + Sync,
+        T: Fn(Uuid) -> BoxFuture<'static, ()> + 'static + Send + Sync,
     {
         Job {
             id: Uuid::new_v4(),
@@ -122,7 +122,7 @@ impl OneshotJobBuilder {
 
     pub fn do_<T>(&mut self, f: T) -> Job
     where
-        T: Fn() -> BoxFuture<'static, ()> + 'static + Send + Sync,
+        T: Fn(Uuid) -> BoxFuture<'static, ()> + 'static + Send + Sync,
     {
         Job {
             id: Uuid::new_v4(),

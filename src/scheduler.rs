@@ -62,7 +62,7 @@ impl Shared {
 
             if let Some(job) = state.job_store.get_mut(job_id) {
                 let f = job.f();
-                let fut = f();
+                let fut = f(job_id.to_owned());
                 tokio::spawn(async move {
                     fut.await;
                 });
