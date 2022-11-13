@@ -106,6 +106,14 @@ impl Scheduler {
         self.shared.background_task.notify_one();
     }
 
+    pub fn remove_job(&self, job_id: &Uuid) {
+        let mut state = self.shared.state.lock().unwrap();
+        state.job_store.remove(job_id);
+        drop(state);
+
+        self.shared.background_task.notify_one();
+    }
+
     pub fn start(&mut self) -> JoinHandle<()> {
         tokio::spawn(schedule_jobs(self.shared.clone()))
     }
