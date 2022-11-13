@@ -1,3 +1,4 @@
+use crate::context::Context;
 use crate::job::Job;
 use crate::time_event::TimeEvent;
 use chrono::{DateTime, Utc};
@@ -62,7 +63,11 @@ impl Shared {
 
             if let Some(job) = state.job_store.get_mut(job_id) {
                 let f = job.f();
-                let fut = f(job_id.to_owned());
+                let ctx = Context {
+                    job_id: job_id.to_owned(),
+                    when: when.clone(),
+                };
+                let fut = f(ctx);
                 tokio::spawn(async move {
                     fut.await;
                 });

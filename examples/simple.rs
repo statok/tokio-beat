@@ -26,15 +26,18 @@ async fn main() -> () {
 
     let mut scheduler = Scheduler::new();
 
-    scheduler.add_job(Job::cron("*/30 * * * * *").do_(|| {
+    scheduler.add_job(Job::cron("*/30 * * * * *").do_(|ctx| {
         let mut foo = Foo::new();
         Box::pin(async move {
-            info!("I am a cron job run every 30 seconds.");
+            info!(
+                "I am a cron job run every 30 seconds. last tick is: {}",
+                ctx.when
+            );
             foo.set_bar("value");
         })
     }));
 
-    scheduler.add_job(Job::cron("0 * * * * *").do_(|| {
+    scheduler.add_job(Job::cron("0 * * * * *").do_(|_| {
         let mut foo = Foo::new();
         Box::pin(async move {
             info!("I am a cron job run every 1 minutes.");
@@ -42,7 +45,7 @@ async fn main() -> () {
         })
     }));
 
-    scheduler.add_job(Job::cycle(Utc::now(), Duration::seconds(10)).do_(|| {
+    scheduler.add_job(Job::cycle(Utc::now(), Duration::seconds(10)).do_(|_| {
         let mut foo = Foo::new();
         Box::pin(async move {
             info!("I am a cycle job run every 10 seconds.");
@@ -53,7 +56,7 @@ async fn main() -> () {
     let now = Utc::now();
     let after_10s = now + Duration::seconds(10);
     let after_10s_clone = after_10s.clone();
-    scheduler.add_job(Job::oneshot(after_10s).do_(move || {
+    scheduler.add_job(Job::oneshot(after_10s).do_(move |_| {
         let mut foo = Foo::new();
         Box::pin(async move {
             info!("I an a oneshot job run at {}.", after_10s_clone);
