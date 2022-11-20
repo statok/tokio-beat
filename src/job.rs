@@ -91,8 +91,8 @@ impl CycleJobBuilder {
         }
     }
 
-    pub fn end_at(mut self, end_at: &DateTime<FixedOffset>) -> CycleJobBuilder {
-        self.end_at = Some(end_at.to_owned().into());
+    pub fn end_at<T: Into<DateTime<Utc>>>(mut self, end_at: T) -> CycleJobBuilder {
+        self.end_at = Some(end_at.into());
         self
     }
 
