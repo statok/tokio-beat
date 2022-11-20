@@ -20,12 +20,19 @@ pub struct Scheduler {
 
 struct Shared {
     state: Mutex<State>,
+    /// Notifies the background task processing time events. The background
+    /// task waits on this to be notified, then process time event or the
+    /// shutdown signal.
     background_task: Notify,
 }
 
 struct State {
+    /// Mapping job id to job so that we can retrieve the job by it's id.
     job_store: HashMap<Uuid, Job>,
+    /// New jobs added to the scheduler. When scheduler sees new jobs,
+    /// it will produce time events for these jobs then drain them to the job_store.
     new_jobs: Vec<Job>,
+    /// The time events will occur in the nearest future. Time events are organized as a min-heap.
     time_events: BinaryHeap<Reverse<TimeEvent>>,
     shutdown: bool,
 }
